@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.project.mapper.TradeReplyMapper">	
+<!-- 판매 게시판 -->
+    	<!-- 댓글 등록 -->
+    	<insert id="insert">
+    		insert into trade_reply(bno, reply, replyer)
+    		values (#{bno}, #{reply}, #{replyer})
+    	</insert>
+    	
+    	<!-- 댓글 조회 -->
+    	<select id="read" resultType="com.project.model.TradeReplyVO">
+    		select * from trade_reply where rno = #{rno}    		
+    	</select>
+    	
+    	<!-- 댓글 삭제 -->
+    	<delete id="delete">
+    		delete from trade_reply where rno = #{rno}
+    	</delete>
+    	
+    	<delete id="deleteAll">
+    		delete from trade_reply where bno = #{tradeBno}
+    	</delete>
+    	
+    	<!-- 댓글 수정 -->
+    	<update id="update">
+    		update trade_reply set reply = #{reply}, updateDate = now() where rno = #{rno}
+    	</update>
+    	
+    	<!-- 특정 게시물의 댓글 조회 -->
+    	<!-- <select id="getListWithPaging" resultType="com.project.model.ReplyVO">
+    		select * from trade_reply where bno = #{bno} order by rno asc
+    	</select> -->
+    	
+    	<!-- 댓글 페이징 처리 -->
+    	<select id="getListWithPaging" resultType="com.project.model.TradeReplyVO">
+    	<![CDATA[
+    		select * from (
+                select bno, rno, reply, replyer, replyDate, updateDate  
+                from trade_reply
+                where bno = #{bno}
+                 and rno > 0
+                order by rno desc) as T1
+        	limit #{cri.skip}, #{cri.amount}
+        ]]>
+    	</select>
+    	
+    	<!-- 댓글 총 갯수 -->
+    	<select id="getCountByBno"  resultType="int">
+    		select count(rno) from trade_reply where bno = #{bno}
+    	</select>
+
+
+<!-- 구매 게시판 -->
+    	<!-- 댓글 등록 -->
+    	<insert id="insert2">
+    		insert into trade_reply2(bno2, reply2, replyer2)
+    		values (#{bno2}, #{reply2}, #{replyer2})
+    	</insert>
+    	
+    	<!-- 댓글 조회 -->
+    	<select id="read2" resultType="com.project.model.TradeReplyVO">
+    		select * from trade_reply2 where rno2 = #{rno2}    		
+    	</select>
+    	
+    	<!-- 댓글 삭제 -->
+    	<delete id="delete2">
+    		delete from trade_reply2 where rno2 = #{rno2}
+    	</delete>
+    	
+    	<delete id="deleteAll2">
+    		delete from trade_reply2 where bno2 = #{tradeBno2}
+    	</delete>
+    	
+    	<!-- 댓글 수정 -->
+    	<update id="update2">
+    		update trade_reply2 set reply2 = #{reply2}, updateDate2 = now() where rno2 = #{rno2}
+    	</update>
+    	
+    	<!-- 특정 게시물의 댓글 조회 -->
+    	<!-- <select id="getListWithPaging" resultType="com.project.model.ReplyVO">
+    		select * from trade_reply where bno = #{bno} order by rno asc
+    	</select> -->
+    	
+    	<!-- 댓글 페이징 처리 -->
+    	<select id="getListWithPaging2" resultType="com.project.model.TradeReplyVO">
+    	<![CDATA[
+    		select * from (
+                select bno2, rno2, reply2, replyer2, replyDate2, updateDate2 
+                from trade_reply2
+                where bno2 = #{bno2}
+                 and rno2 > 0
+                order by rno2 desc) as T2
+        	limit #{cri.skip}, #{cri.amount}
+        ]]>
+    	</select>
+    	
+    	<!-- 댓글 총 갯수 -->
+    	<select id="getCountByBno2"  resultType="int">
+    		select count(rno2) from trade_reply2 where bno2 = #{bno2}
+    	</select>
+
+
+
+</mapper>

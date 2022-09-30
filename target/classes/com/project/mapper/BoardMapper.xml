@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.mapper.BoardMapper">
+	
+	
+		<sql id="criteria">
+		<trim prefix="(" suffix=") and " prefixOverrides="or">
+				<foreach item="type" collection="typeArr">
+					<trim prefix="or">
+						<choose>
+							<when test="type=='T'.toString()">
+								title like CONCAT('%',#{keyword},'%')
+							</when>
+							<when test="type=='C'.toString()">
+								content like CONCAT('%',#{keyword},'%')
+							</when>
+							<when test="type=='W'.toString()">
+								writer like CONCAT('%',#{keyword},'%')
+							</when>
+						</choose>
+					</trim>
+				</foreach>
+			</trim>
+		</sql>
+	
+	
+	
+	<select id="getListWithPaging" resultType="com.project.model.BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,replycnt
+		      from tbl_board,(SELECT @ROWNUM :=0) AS r
+		      where 
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>	
+	</select>
+	
+	
+	<select id="getListWithPaging_f" resultType="com.project.model.BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,replycnt
+		      from tbl_board,(SELECT @ROWNUM :=0) AS r
+		      where cgo='자유게시판' and
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount} 
+		]]>	
+	</select>	
+	
+	<select id="getListWithPaging_h" resultType="com.project.model.BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,replycnt
+		      from tbl_board,(SELECT @ROWNUM :=0) AS r
+		      where cgo='취미게시판' and
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount}  
+		]]>	
+	</select>	
+	
+	<select id="getListWithPaging_i" resultType="com.project.model.BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,replycnt
+		      from tbl_board,(SELECT @ROWNUM :=0) AS r
+		      where cgo='정보공유' and
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount}  
+		]]>	
+	</select>	
+	
+	
+	
+<select id="getList" resultType="com.project.model.BoardVO">
+	select * from tbl_board where bno>0
+</select>
+	
+	
+<select id="read" resultType="com.project.model.BoardVO">
+	select * from tbl_board where bno=#{bno}
+</select>
+	
+<insert id="insertSelectKey">
+	<selectKey keyProperty="bno" order="BEFORE" resultType="long">
+		select MAX(bno)+1 from tbl_board
+	</selectKey>
+		insert into tbl_board(bno,cgo,title,content,writer)
+		values(#{bno},#{cgo},#{title},#{content},#{writer})
+</insert>
+
+<delete id="delete">
+	delete from tbl_board 
+	where bno=#{bno}
+</delete>
+
+<update id="update">
+	update tbl_board 
+	set title=#{title},cgo=#{cgo},content=#{content}, updatedate=CURRENT_TIMESTAMP
+	where bno=#{bno} 
+</update>
+
+
+<select id="getTotalCount" resultType="int">
+	select count(*) from tbl_board 
+	where 
+		
+	<include refid="criteria"></include>
+		
+	bno>0
+</select>
+
+<select id="getTotalCount_f" resultType="int">
+	select count(*) from tbl_board 
+	where 
+		
+	<include refid="criteria"></include>
+	
+	cgo='자유게시판'
+</select>
+
+
+<select id="getTotalCount_h" resultType="int">
+	select count(*) from tbl_board 
+	where 
+		
+	<include refid="criteria"></include>
+		
+	cgo='취미게시판'
+</select>
+
+
+<select id="getTotalCount_i" resultType="int">
+	select count(*) from tbl_board 
+	where 
+		
+	<include refid="criteria"></include>
+		
+	cgo='정보공유'
+</select>
+
+
+<update id="updateReplyCnt">
+	update tbl_board set replycnt=replycnt+#{amount} where bno=#{bno}
+</update>
+
+</mapper>

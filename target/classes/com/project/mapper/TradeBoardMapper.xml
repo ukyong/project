@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.project.mapper.TradeBoardMapper">
+	<!-- 검색 조건문 -->
+	<sql id="criteria">
+		<trim prefix="where (" suffix=")" prefixOverrides="OR">
+			<foreach collection="typeArr" item="type">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							tradeTitle like concat('%',#{keyword},'%') 
+						</when>
+						<when test="type == 'C'.toString()">
+							tradeContent like concat('%',#{keyword},'%') 
+						</when>
+						<when test="type == 'W'.toString()">
+							tradeWriter like concat('%',#{keyword},'%' )
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>		
+	</sql>
+	<sql id="criteria2">
+	<trim prefix="where (" suffix=")" prefixOverrides="OR">
+			<foreach collection="typeArr" item="type">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							tradeTitle2 like concat('%',#{keyword},'%') 
+						</when>
+						<when test="type == 'C'.toString()">
+							tradeContent2 like concat('%',#{keyword},'%') 
+						</when>
+						<when test="type == 'W'.toString()">
+							tradeWriter2 like concat('%',#{keyword},'%' )
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>	
+	</sql>
+	<sql id="criteria3">
+	<trim prefix="where (" suffix=")" prefixOverrides="OR">
+			<foreach collection="typeArr" item="type3">
+				<trim prefix="OR">
+					<choose>
+						<when test="type3 == 'T'.toString()">
+							noticeTitle like concat('%',#{keyword},'%') 
+						</when>
+						<when test="type3 == 'C'.toString()">
+							noticeContent like concat('%',#{keyword},'%') 
+						</when>
+						<when test="type3 == 'W'.toString()">
+							noticeWriter like concat('%',#{keyword},'%' )
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>	
+	</sql>
+<!-- 판매 게시판 -->	
+	<!-- 게시판 등록 -->
+	<insert id="insert">
+		insert into trade_board(tradeTitle, tradeContent, tradeWriter)
+		values (#{tradeTitle}, #{tradeContent}, #{tradeWriter}) 
+	</insert>
+	
+	<insert id="insertSelectKey">		
+		insert into trade_board(tradeTitle, tradeContent, tradeWriter)
+		values (#{tradeTitle}, #{tradeContent}, #{tradeWriter})
+		
+		<selectKey keyProperty="tradeBno" order="AFTER" resultType="int">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 게시판 목록 -->
+	<select id="getList" resultType="com.project.model.TradeBoardVO">
+		select * from trade_board
+	</select>
+	
+	<!-- 게시판 조회 -->
+	<select id="getPage" resultType="com.project.model.TradeBoardVO">
+		select * from trade_board where tradeBno = #{tradeBno}
+	</select>
+	
+	<!-- 게시물 목록(페이징) -->
+	<select id="getListPaging" resultType="com.project.model.TradeBoardVO">
+    
+        select * from (
+                select tradeBno, tradeTitle, tradeWriter, tradeRegdate, tradeUpdatedate, tradeReplyCnt  
+                from trade_board 
+                <if test="keyword != null">
+                    <include refid="criteria"></include>
+                </if>
+                order by tradeBno desc) as T1
+        limit #{skip},#{amount}    
+    </select>
+	
+	<!-- 게시판 수정 -->
+	<update id="modify">
+		update trade_board set tradeTitle = #{tradeTitle}, tradeContent = #{tradeContent}, tradeUpdatedate = now() where tradeBno = #{tradeBno}
+	</update>
+	
+	<!-- 게시판 삭제 -->
+	<delete id="delete">
+		delete from trade_board where tradeBno = #{tradeBno}
+	</delete>
+	
+	<!-- 게시물 총 갯수 -->
+	<select id="getTotal" resultType="int">    
+        select count(*) from trade_board
+        
+        <if test="keyword != null">
+            <include refid="criteria"></include>
+        </if>        
+    </select> 
+    
+    <!-- 게시물의 댓글 -->
+    <select id="updateReplyCnt">
+    	update trade_board set tradeReplyCnt = tradeReplyCnt + #{amount} where tradeBno = #{tradeBno}
+    </select>
+    
+<!-- 구매 게시판 -->	
+	<!-- 게시판 등록 -->
+	<insert id="insert2">
+		insert into trade_board2(tradeTitle2, tradeContent2, tradeWriter2)
+		values (#{tradeTitle2}, #{tradeContent2}, #{tradeWriter2}) 
+	</insert>
+	
+	<insert id="insertSelectKey2">		
+		insert into trade_board2(tradeTitle2, tradeContent2, tradeWriter2)
+		values (#{tradeTitle2}, #{tradeContent2}, #{tradeWriter2})
+		
+		<selectKey keyProperty="tradeBno2" order="AFTER" resultType="int">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	
+	<!-- 게시판 목록 -->
+	<select id="getList2" resultType="com.project.model.TradeBoardVO">
+		select * from trade_board2
+	</select>
+	
+	<!-- 게시판 조회 -->
+	<select id="getPage2" resultType="com.project.model.TradeBoardVO">
+		select * from trade_board2 where tradeBno2 = #{tradeBno2}
+	</select>
+	
+	<!-- 게시물 목록(페이징) -->
+	<select id="getListPaging2" resultType="com.project.model.TradeBoardVO">
+    
+        select * from (
+                select tradeBno2, tradeTitle2, tradeWriter2, tradeRegdate2, tradeUpdatedate2, tradeReplyCnt2  
+                from trade_board2 
+                <if test="keyword != null">
+                    <include refid="criteria2"></include>
+                </if>
+                order by tradeBno2 desc) as T2
+        limit #{skip},#{amount}    
+    </select>
+	
+	<!-- 게시판 수정 -->
+	<update id="modify2">
+		update trade_board2 set tradeTitle2 = #{tradeTitle2}, tradeContent2 = #{tradeContent2}, tradeUpdatedate2 = now() where tradeBno2 = #{tradeBno2}
+	</update>
+	
+	<!-- 게시판 삭제 -->
+	<delete id="delete2">
+		delete from trade_board2 where tradeBno2 = #{tradeBno2}
+	</delete>
+	
+	<!-- 게시물 총 갯수 -->
+	<select id="getTotal2" resultType="int">    
+        select count(*) from trade_board2
+        
+        <if test="keyword != null">
+            <include refid="criteria2"></include>
+        </if>        
+    </select> 
+    
+    <!-- 게시물의 댓글 -->
+    <select id="updateReplyCnt2">
+    	update trade_board2 set tradeReplyCnt2 = tradeReplyCnt2 + #{amount} where tradeBno2 = #{tradeBno2}
+    </select>
+ 
+<!-- 공지사항 -->
+
+	<insert id="insertNotice">
+		insert into notice_board(noticeTitle, noticeContent, noticeWriter)
+		values (#{noticeTitle}, #{noticeContent}, #{noticeWriter}) 
+	</insert>
+	
+	<!-- 공지사항 목록 -->
+	<select id="getListNotice" resultType="com.project.model.TradeBoardVO">
+		select * from notice_board
+	</select>
+	
+	<!-- 공지사항 조회 -->
+	<select id="getPageNotice" resultType="com.project.model.TradeBoardVO">
+		select * from notice_board where noticeBno = #{noticeBno}
+	</select>
+	
+	<!-- 공지사항 목록(페이징) -->
+	<select id="getListPagingNotice" resultType="com.project.model.TradeBoardVO">
+    
+        select * from (
+                select noticeBno, noticeTitle, noticeWriter, noticeRegdate, noticeUpdatedate 
+                from notice_board 
+                <if test="keyword != null">
+                    <include refid="criteria3"></include>
+                </if>
+                order by noticeBno desc) as T1
+        limit #{skip},#{amount}    
+    </select>
+	
+	<!-- 공지사항 수정 -->
+	<update id="modifyNotice">
+		update notice_board set noticeTitle = #{noticeTitle}, noticeContent = #{noticeContent}, noticeUpdatedate = now() where noticeBno = #{noticeBno}
+	</update>
+	
+	<!-- 공지사항 삭제 -->
+	<delete id="deleteNotice">
+		delete from notice_board where noticeBno = #{noticeBno}
+	</delete>
+	
+	<!-- 공지사항 총 갯수 -->
+	<select id="getTotalNotice" resultType="int">    
+        select count(*) from notice_board
+        
+        <if test="keyword != null">
+            <include refid="criteria3"></include>
+        </if>        
+    </select> 
+
+    
+</mapper>

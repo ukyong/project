@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.mapper.UserMapper">
+	<select id="select" parameterType="String" resultType="com.project.model.UserDto">
+		 select *
+		 from user
+		 where userId = #{userId}
+	</select>
+	<insert id="insert" parameterType="com.project.model.UserDto">
+		insert into user(userId,userpwd,username,useremail,useraddr1,useraddr2,useraddr3)
+		values(#{userId},#{userPwd},#{userName},#{userEmail},#{userAddr1},#{userAddr2},#{userAddr3})
+	</insert>
+	<insert id="insertUserAuth" parameterType="String">
+		insert into Auth(userId,auth)
+		values(#{userId},'ROLE_USER')
+	</insert>
+	<select id="selectAll" resultType="com.project.model.UserDto">
+		 select *
+		 from user
+		 order by userId desc
+	</select>
+	<update id="update" parameterType="com.project.model.UserDto">
+        UPDATE user
+        SET   userEmail = #{userEmail}
+          , userAddr1 = #{userAddr1}
+          , userAddr2 = #{userAddr2}
+          , userAddr3 = #{userAddr3}
+        WHERE userId = #{userId}
+    </update>
+    <delete id="delete" parameterType="String">
+        DELETE FROM user WHERE userId = #{userId}
+    </delete>
+    <select id="idCheck" resultType="int">
+    	select count(*)
+    	 from user
+    	where userId = #{userId}
+  	</select>
+</mapper>

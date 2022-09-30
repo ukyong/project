@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.project.mapper.TradeBoardAttachMapper">	
+ <!-- 판매 게시판 -->
+    	<!-- 첨부파일 등록 -->
+    	<insert id="insert">
+    		insert into trade_attach (uuid, uploadPath, fileName, filetype, bno)
+    		values (#{uuid}, #{uploadPath}, #{fileName}, #{filetype}, #{bno})
+    	</insert>
+    	
+    	<!-- 첨부파일 삭제 -->
+    	<delete id="delete">
+    		delete from trade_attach where uuid = #{uuid}
+    	</delete>
+    	
+    	<!-- 첨부파일 조회 -->
+    	<select id="findByBno" resultType="com.project.model.TradeBoardAttachVO">
+    		select * from trade_attach where bno = #{bno}
+    	</select>
+    	
+    	<!-- 게시물과 첨부파일 동시삭제 -->
+    	<delete id="deleteAll">
+    		delete from trade_attach where bno = #{tradeBno}
+    	</delete>
+    	
+    	<!-- 오래된 파일 DB 불일치시 삭제 -->
+    	<select id="getOldFiles" resultType="com.project.model.TradeBoardAttachVO">
+    		select * from trade_attach where uploadpath = to_char(sysdate -1,'yyyy/mm/dd')
+    	</select>
+    	
+<!-- 구매 게시판 -->
+    	<!-- 첨부파일 등록 -->
+    	<insert id="insert2">
+    		insert into trade_attach2 (uuid2, uploadPath2, fileName2, filetype2, bno2)
+    		values (#{uuid2}, #{uploadPath2}, #{fileName2}, #{filetype2}, #{bno2})
+    	</insert>
+    	
+    	<!-- 첨부파일 삭제 -->
+    	<delete id="delete2">
+    		delete from trade_attach2 where uuid2 = #{uuid2}
+    	</delete>
+    	
+    	<!-- 첨부파일 조회 -->
+    	<select id="findByBno2" resultType="com.project.model.TradeBoardAttachVO">
+    		select * from trade_attach2 where bno2 = #{bno2}
+    	</select>
+    	
+    	<!-- 게시물과 첨부파일 동시삭제 -->
+    	<delete id="deleteAll2">
+    		delete from trade_attach2 where bno2 = #{tradeBno2}
+    	</delete>
+    	
+    	<!-- 오래된 파일 DB 불일치시 삭제 -->
+    	<select id="getOldFiles2" resultType="com.project.model.TradeBoardAttachVO">
+    		select * from trade_attach2 where uploadpath2 = to_char(sysdate -1,'yyyy/mm/dd')
+    	</select>
+	
+</mapper>

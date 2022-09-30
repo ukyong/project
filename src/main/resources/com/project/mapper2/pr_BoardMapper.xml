@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.project.mapper2.pr_BoardMapper">
+
+		<sql id="criteria">
+		<trim prefix="(" suffix=") and " prefixOverrides="or">
+				<foreach item="type" collection="typeArr">
+					<trim prefix="or">
+						<choose>
+							<when test="type=='T'.toString()">
+								title like CONCAT('%',#{keyword},'%')
+							</when>
+							<when test="type=='C'.toString()">
+								content like CONCAT('%',#{keyword},'%')
+							</when>
+							<when test="type=='W'.toString()">
+								writer like CONCAT('%',#{keyword},'%')
+							</when>
+						</choose>
+					</trim>
+				</foreach>
+			</trim>
+		</sql>
+		
+ 	<select id="getListWithPaging_r" resultType="com.project.model.pr_BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,front,map,address
+		      from pr_board,(SELECT @ROWNUM :=0) AS r
+		      where cgo='식당' and
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>	
+	</select> 
+	
+	 	<select id="getListWithPaging_c" resultType="com.project.model.pr_BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,front,map,address
+		      from pr_board,(SELECT @ROWNUM :=0) AS r
+		      where cgo='카페' and
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>	
+	</select>
+	
+	 	<select id="getListWithPaging_l" resultType="com.project.model.pr_BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,front,map,address
+		      from pr_board,(SELECT @ROWNUM :=0) AS r
+		      where cgo='생활' and
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>	
+	</select>
+	
+	 	<select id="getListWithPaging_b" resultType="com.project.model.pr_BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,front,map,address
+		      from pr_board,(SELECT @ROWNUM :=0) AS r
+		      where cgo='뷰티' and
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>	
+	</select>
+	
+	 	<select id="getListWithPaging_g" resultType="com.project.model.pr_BoardVO">
+		<![CDATA[
+		select *
+		from (select @ROWNUM:=@ROWNUM+1 as rn ,bno,cgo,title,content,writer,regdate,updatedate,front,map,address
+		      from pr_board,(SELECT @ROWNUM :=0) AS r
+		      where cgo='기타' and
+		 ]]>
+		
+			<include refid="criteria"></include>
+			
+		<![CDATA[ 
+		      @ROWNUM < #{pageNum} * #{amount}
+		      order by bno desc		      
+		      )A
+		where rn > (#{pageNum}-1) * #{amount}
+		]]>	
+	</select>
+	
+	
+	
+		
+	<select id="read" resultType="com.project.model.pr_BoardVO">
+		select * from pr_board where bno=#{bno}
+	</select>
+		
+		
+	<insert id="insertSelectKey">
+	<selectKey keyProperty="bno" order="BEFORE" resultType="long">
+		select MAX(bno)+1 from pr_board
+	</selectKey>
+		insert into pr_board(bno,cgo,title,content,writer,map,front,address)
+		values(#{bno},#{cgo},#{title},#{content},#{writer},#{map},#{front},#{address})
+	</insert>
+		
+	
+	<delete id="delete">
+		delete from pr_board 
+		where bno=#{bno}
+	</delete>
+	
+	
+	<update id="update">
+		update pr_board 
+		set title=#{title}, cgo=#{cgo}, content=#{content}, front=#{front}, map=#{map},address=#{address}, updatedate=CURRENT_TIMESTAMP
+		where bno=#{bno} 
+	</update>
+	
+	
+	
+	<select id="getTotalCount_r" resultType="int">
+		select count(*) from pr_board 
+		where cgo='식당' and 
+		
+		<include refid="criteria"></include>
+		
+		bno>0
+	</select>
+	<select id="getTotalCount_c" resultType="int">
+		select count(*) from pr_board 
+		where cgo='카페' and
+		
+		<include refid="criteria"></include>
+		
+		bno>0
+	</select>
+		<select id="getTotalCount_l" resultType="int">
+		select count(*) from pr_board 
+		where cgo='생활' and
+		
+		<include refid="criteria"></include>
+		
+		bno>0
+	</select>
+		<select id="getTotalCount_b" resultType="int">
+		select count(*) from pr_board 
+		where cgo='뷰티' and
+		
+		<include refid="criteria"></include>
+		
+		bno>0
+	</select>
+		<select id="getTotalCount_g" resultType="int">
+		select count(*) from pr_board 
+		where cgo='기타' and
+		
+		<include refid="criteria"></include>
+		
+		bno>0
+	</select>
+
+
+		
+
+</mapper>
