@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Built-By: KTE001
-Build-Jdk: 1.8.0_251
+Built-By: ￬ﾝﾴ￬ﾚﾩ￬ﾚﾱ
+Build-Jdk: 11.0.15
 Created-By: Maven Integration for Eclipse
 

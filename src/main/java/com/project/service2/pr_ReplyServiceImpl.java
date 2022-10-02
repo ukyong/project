@@ -24,7 +24,6 @@ public class pr_ReplyServiceImpl implements pr_ReplyService{
 	@Transactional
 	@Override
 	public int register(ReplyVO vo) {
-		boardmapper.updateReplyCnt(vo.getBno(),1);
 		return mapper.insert(vo);
 	}
 
@@ -42,7 +41,6 @@ public class pr_ReplyServiceImpl implements pr_ReplyService{
 	@Override
 	public int remove(Long rno) {
 		ReplyVO vo=mapper.read(rno);
-		boardmapper.updateReplyCnt(vo.getBno(),-1);
 		return 0;
 	}
 

@@ -133,8 +133,10 @@
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-comments fa-fw"></i> Reply
+							<sec:authorize access="isAuthenticated()">	
 							<button id='addReplyBtn' class='btn btn-primary btn-xs pull-right'>새 댓글</button>
-						</div>
+							</sec:authorize>
+						</div>						
 					
 					
 						<div class="panel-body">
@@ -157,7 +159,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 	 		<div class="modal-header">
@@ -167,16 +169,16 @@
 	 		
 	 		<div class="modal-body">
 	 			<div class="form-group">
-	 				<label>Reply</label>
-	 				<input class="form-control" name='reply' value='New Reply!!!'>
+	 				<label>Reply</label>	 				
+	 				<input class="form-control" name='reply' value="reply">
 	 			</div>
 	 			<div class="form-group">
-	 				<label>Replyer</label>
-	 				<input class="form-control" name='replyer' value='replyer'>
+	 				<label>Replyer</label>	 				
+	 				<input class="form-control" name='replyer' value="replyer">
 	 			</div>
 	 			<div class="form-group">
 	 				<label>Reply Date</label>
-	 				<input class="form-control" name='replyDate' value=''>
+	 				<input class="form-control" name='replyDate' value='ReplyDate'>
 	 			</div>
 	 		</div>
 	 		
@@ -239,6 +241,7 @@ $(document).ready(function(){
 		//replyPageFooter.append(str);
 		replyPageFooter.html(str);
 	}
+	
 	
 	//댓글 페이지 번호 클릭시
 	replyPageFooter.on("click","li a",function(e){
@@ -311,16 +314,25 @@ $(document).ready(function(){
 	var modalModBtn=$('#modalModBtn');
 	var modalRemoveBtn=$('#modalRemoveBtn');
 	var modalRegisterBtn=$('#modalRegisterBtn');
+	var modalCloseBtn=$('#modalCloseBtn');
+	
+
 	
 	$('#addReplyBtn').on('click',function(e){
 		//댓글 등록에서 보일 입력
-		modal.find('input').val('');
+		
+		modal.find("input[name='reply']").val('').attr("readonly", false);
+		<sec:authorize access="isAuthenticated()">
+		<sec:authentication property="principal" var="pinfo"/>		
+		modal.find("input[name='replyer']").val('<c:out value="${pinfo.username}"/>').attr("readonly","readonly");
+		</sec:authorize>
 		modalInputReplyDate.closest('div').hide();
 		modal.find("button[id!='modalCloseBtn']").hide();		
 		modalRegisterBtn.show();
 
 		
 		$(".modal").modal("show");
+
 	});
 	
 	//댓글 등록
@@ -341,26 +353,35 @@ $(document).ready(function(){
 		});
 	});
 	
+	modalCloseBtn.on('click',function(e){
+		modal.modal('hide');		
+	});
+	
 	//댓글 li 클릭시 동작
 	$(".chat").on("click","li",function(e){
 		var rno=$(this).data("rno");
-		
-		console.log(rno);
-		
-		replyService.get(rno,function(reply){
+		console.log(rno);		
+		replyService.get(rno,function(reply){			
 			console.log(reply);
 			
-			modalInputReply.val(reply.reply);
-			modalInputReplyer.val(reply.replyer);
+			modalInputReply.val(reply.reply).attr("readonly",true);
+			modalInputReplyer.val(reply.replyer).attr("readonly","readonly");
 			modalInputReplyDate.val(
 					replyService.displayTime(reply.replyDate)).attr("readonly","readonly");
 			
 			modal.data("rno",reply.rno);
+			var replyer=reply.replyer;
 			
-			modal.find("button[id!='modalCloseBtn']").hide();		
-			modalModBtn.show();
-			modalRemoveBtn.show();
-			
+			modal.find("button[id!='modalCloseBtn']").hide();
+            <sec:authentication property="principal" var="pinfo"/>
+                <sec:authorize access="isAuthenticated()">
+                if('<c:out value="${pinfo.username}"/>' === replyer){
+                		modalInputReply.attr("readonly",false);
+						modalModBtn.show();
+						modalRemoveBtn.show();
+                };
+	            </sec:authorize>
+	                      
 			$(".modal").modal("show");
 			
 		});

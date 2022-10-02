@@ -163,7 +163,9 @@
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-comments fa-fw"></i> Reply
+							<sec:authorize access="isAuthenticated()">	
 							<button id='addReplyBtn' class='btn btn-primary btn-xs pull-right'>새 댓글</button>
+							</sec:authorize>
 						</div>
 					
 					
@@ -271,7 +273,7 @@ geocoder.addressSearch('${board.map}', function(result, status) {
 </script>			                
                 
                 
-                <script src="/resources/js/reply.js"></script>
+<script src="/resources/js/reply2.js"></script>
 <script type="text/javascript">
 $(document).ready(function(){
 	//댓글 페이지 처리
@@ -384,10 +386,15 @@ $(document).ready(function(){
 	var modalModBtn=$('#modalModBtn');
 	var modalRemoveBtn=$('#modalRemoveBtn');
 	var modalRegisterBtn=$('#modalRegisterBtn');
+	var modalCloseBtn=$('#modalCloseBtn');
 	
 	$('#addReplyBtn').on('click',function(e){
 		//댓글 등록에서 보일 입력
-		modal.find('input').val('');
+		modal.find("input[name='reply']").val('').attr("readonly", false);
+		<sec:authorize access="isAuthenticated()">
+		<sec:authentication property="principal" var="pinfo"/>		
+		modal.find("input[name='replyer']").val('<c:out value="${pinfo.username}"/>').attr("readonly","readonly");
+		</sec:authorize>
 		modalInputReplyDate.closest('div').hide();
 		modal.find("button[id!='modalCloseBtn']").hide();		
 		modalRegisterBtn.show();
@@ -396,77 +403,85 @@ $(document).ready(function(){
 		$(".modal").modal("show");
 	});
 	
-	//댓글 등록
-	modalRegisterBtn.on('click',function(e){
-		
-		var reply={
-				reply:modalInputReply.val(),
-				replyer:modalInputReplyer.val(),
-				bno:bnoValue};
-		
-		replyService.add(reply,function(result){			
-			alert("응답결과:"+result);
+		//댓글 등록
+		modalRegisterBtn.on('click',function(e){
 			
-			modal.find('input').val('');
-			modal.modal('hide');
+			var reply={
+					reply:modalInputReply.val(),
+					replyer:modalInputReplyer.val(),
+					bno:bnoValue};
 			
-			showList(-1);	//댓글 등록후 1페이지로 이동
+			replyService.add(reply,function(result){			
+				alert("응답결과:"+result);
+				
+				modal.find('input').val('');
+				modal.modal('hide');
+				
+				showList(-1);	//댓글 등록후 1페이지로 이동
+			});
 		});
-	});
-	
-	//댓글 li 클릭시 동작
-	$(".chat").on("click","li",function(e){
-		var rno=$(this).data("rno");
 		
-		console.log(rno);
-		
-		replyService.get(rno,function(reply){
-			console.log(reply);
-			
-			modalInputReply.val(reply.reply);
-			modalInputReplyer.val(reply.replyer);
-			modalInputReplyDate.val(
-					replyService.displayTime(reply.replyDate)).attr("readonly","readonly");
-			
-			modal.data("rno",reply.rno);
-			
-			modal.find("button[id!='modalCloseBtn']").hide();		
-			modalModBtn.show();
-			modalRemoveBtn.show();
-			
-			$(".modal").modal("show");
-			
+		modalCloseBtn.on('click',function(e){
+			modal.modal('hide');		
 		});
-	});
-	
-	//댓글 수정
-	modalModBtn.on("click",function(e){
-		var reply={
-				rno:modal.data("rno"),
-				reply:modalInputReply.val()};
 		
-		replyService.update(reply,function(result){
-			alert("수정 완료..."+result);
-			modal.modal("hide");
-			
-			showList(pageNum);	//댓글 갱신
-		}); 
-	});
-	
-	//댓글 삭제
-	modalRemoveBtn.on("click",function(e){
-		var rno=modal.data("rno");
-		
-		replyService.remove(rno,function(result){
-			alert("삭제 완료..."+result);		
-			modal.modal("hide");
-			
-			showList(pageNum);	//댓글 갱신
+		//댓글 li 클릭시 동작
+		$(".chat").on("click","li",function(e){
+			var rno=$(this).data("rno");
+			console.log(rno);		
+			replyService.get(rno,function(reply){			
+				console.log(reply);
+				
+				modalInputReply.val(reply.reply).attr("readonly",true);
+				modalInputReplyer.val(reply.replyer).attr("readonly","readonly");
+				modalInputReplyDate.val(
+						replyService.displayTime(reply.replyDate)).attr("readonly","readonly");
+				
+				modal.data("rno",reply.rno);
+				var replyer=reply.replyer;
+				
+				modal.find("button[id!='modalCloseBtn']").hide();
+	            <sec:authentication property="principal" var="pinfo"/>
+	                <sec:authorize access="isAuthenticated()">
+	                if('<c:out value="${pinfo.username}"/>' === replyer){
+	                		modalInputReply.attr("readonly",false);
+							modalModBtn.show();
+							modalRemoveBtn.show();
+	                };
+		            </sec:authorize>
+		                      
+				$(".modal").modal("show");
+				
+			});
 		});
-	});	
-	
-});
-
+		
+		//댓글 수정
+		modalModBtn.on("click",function(e){
+			var reply={
+					rno:modal.data("rno"),
+					reply:modalInputReply.val()};
+			
+			replyService.update(reply,function(result){
+				alert("수정 완료..."+result);
+				modal.modal("hide");
+				
+				showList(pageNum);	//댓글 갱신
+			}); 
+		});
+		
+		//댓글 삭제
+		modalRemoveBtn.on("click",function(e){
+			var rno=modal.data("rno");
+			
+			replyService.remove(rno,function(result){
+				alert("삭제 완료..."+result);		
+				modal.modal("hide");
+				
+				showList(pageNum);	//댓글 갱신
+			});
+		});	
+		
+	});
 
 </script>
 

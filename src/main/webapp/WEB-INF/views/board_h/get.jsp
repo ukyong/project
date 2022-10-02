@@ -132,7 +132,9 @@
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<i class="fa fa-comments fa-fw"></i> Reply
+							<sec:authorize access="isAuthenticated()">	
 							<button id='addReplyBtn' class='btn btn-primary btn-xs pull-right'>새 댓글</button>
+							</sec:authorize>
 						</div>
 					
 					
@@ -310,10 +312,15 @@ $(document).ready(function(){
 	var modalModBtn=$('#modalModBtn');
 	var modalRemoveBtn=$('#modalRemoveBtn');
 	var modalRegisterBtn=$('#modalRegisterBtn');
+	var modalCloseBtn=$('#modalCloseBtn');
 	
 	$('#addReplyBtn').on('click',function(e){
 		//댓글 등록에서 보일 입력
-		modal.find('input').val('');
+		modal.find("input[name='reply']").val('').attr("readonly", false);
+		<sec:authorize access="isAuthenticated()">
+		<sec:authentication property="principal" var="pinfo"/>		
+		modal.find("input[name='replyer']").val('<c:out value="${pinfo.username}"/>').attr("readonly","readonly");
+		</sec:authorize>
 		modalInputReplyDate.closest('div').hide();
 		modal.find("button[id!='modalCloseBtn']").hide();		
 		modalRegisterBtn.show();
@@ -340,6 +347,10 @@ $(document).ready(function(){
 		});
 	});
 	
+	modalCloseBtn.on('click',function(e){
+		modal.modal('hide');		
+	});
+	
 	//댓글 li 클릭시 동작
 	$(".chat").on("click","li",function(e){
 		var rno=$(this).data("rno");
@@ -349,17 +360,23 @@ $(document).ready(function(){
 		replyService.get(rno,function(reply){
 			console.log(reply);
 			
-			modalInputReply.val(reply.reply);
-			modalInputReplyer.val(reply.replyer);
+			modalInputReply.val(reply.reply).attr("readonly",true);
+			modalInputReplyer.val(reply.replyer).attr("readonly","readonly");
 			modalInputReplyDate.val(
 					replyService.displayTime(reply.replyDate)).attr("readonly","readonly");
 			
 			modal.data("rno",reply.rno);
+			var replyer=reply.replyer;
 			
 			modal.find("button[id!='modalCloseBtn']").hide();		
-			modalModBtn.show();
-			modalRemoveBtn.show();
-			
+            <sec:authentication property="principal" var="pinfo"/>
+                <sec:authorize access="isAuthenticated()">
+                if('<c:out value="${pinfo.username}"/>' === replyer){
+                		modalInputReply.attr("readonly",false);
+						modalModBtn.show();
+						modalRemoveBtn.show();
+                };
+	            </sec:authorize>
 			$(".modal").modal("show");
 			
 		});

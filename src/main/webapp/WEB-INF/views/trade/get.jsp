@@ -92,10 +92,10 @@
             	               	
                       <button class="btn btn-success" id="list_btn">목록</button> 
                       <sec:authentication property="principal" var="pinfo"/>
-                      <sec:authorize access="isAuthenticated()">
-                      <c:if test="${pinfo.username eq pageInfo.tradeWriter }">
-                	  <button class="btn btn-primary" id="modify_btn">수정</button>
-                	  </c:if>
+                      	<sec:authorize access="isAuthenticated()">
+                      		<c:if test="${pinfo.username eq pageInfo.tradeWriter }">
+                	  			<button class="btn btn-primary" id="modify_btn">수정</button>
+                	  		</c:if>
                       </sec:authorize> 
             	 
             	 <form id="infoForm" action="/trade/modify" method="get">
@@ -133,7 +133,10 @@
 		<div class="card">
 			<div class="card-header">
 				<i class="fa fa-comments fa-fw"></i> Reply
-				<button id="addReplyBtn" class="btn btn-primary btn-sm pull-right">새 댓글</button>				
+					<sec:authorize access="isAuthenticated()">	
+						<button id='addReplyBtn' class='btn btn-primary btn-sm pull-right'>새 댓글</button>
+					</sec:authorize>
+								
 			</div>
 		
 			<div class="card-body">
@@ -293,9 +296,14 @@ $(document).ready(function(){
 	var modalModBtn=$('#modalModBtn');
 	var modalRemoveBtn=$('#modalRemoveBtn');
 	var modalRegisterBtn=$('#modalRegisterBtn');
+	var modalCloseBtn=$('#modalCloseBtn');
 	
 	$("#addReplyBtn").on("click", function(e){
-		modal.find("input").val("");
+		modal.find("input[name='reply']").val('').attr("readonly", false);
+		<sec:authorize access="isAuthenticated()">
+		<sec:authentication property="principal" var="pinfo"/>		
+		modal.find("input[name='replyer']").val('<c:out value="${pinfo.username}"/>').attr("readonly","readonly");
+		</sec:authorize>
 		modalInputReplyDate.closest("div").hide();
 		modal.find("button[id !='modalCloseBtn']").hide();
 		
@@ -319,24 +327,36 @@ $(document).ready(function(){
 		});
 	});
 	
+	modalCloseBtn.on('click',function(e){
+		modal.modal('hide');		
+	});
+	
 	//댓글 조회 클릭 이벤트 처리
 	$(".chat").on("click", "li", function(e){
 		var rno = $(this).data("rno");
 		replyService.get(rno, function(reply){
-			modalInputReply.val(reply.reply);
-			modalInputReplyer.val(reply.replyer);
+			modalInputReply.val(reply.reply).attr("readonly",true);
+			modalInputReplyer.val(reply.replyer).attr("readonly","readonly");
 			modalInputReplyDate.val(
 					replyService.displayTime(reply.replyDate)).attr("readonly","readonly");
 			
 			modal.data("rno",reply.rno);
+			var replyer=reply.replyer;
 			
 			modal.find("button[id!='modalCloseBtn']").hide();		
-			modalModBtn.show();
-			modalRemoveBtn.show();
-			
+            <sec:authentication property="principal" var="pinfo"/>
+                <sec:authorize access="isAuthenticated()">
+                if('<c:out value="${pinfo.username}"/>' === replyer){
+                		modalInputReply.attr("readonly",false);
+						modalModBtn.show();
+						modalRemoveBtn.show();
+                };
+	            </sec:authorize>
 			$(".modal").modal("show");			
 		})
 	});
+	
+	
 	
 	//댓글 페이지 이동
 	replyPageFooter.on("click", "li a", function(e){

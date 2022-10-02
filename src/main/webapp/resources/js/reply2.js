@@ -1,85 +1,63 @@
-console.log("댓글 모듈 ......")
+console.log("댓글 Module.....");
 
 var replyService={};
 
-var replyService = (function(){
+var replyService=(function(){
 	
-	//댓글 등록
-	function add2(reply2, callback, error){
+	function add(reply,callback){
 		console.log("add 댓글........");
-		console.log("reply2:"+reply2.reply2);
-		console.log("replyer2:"+reply2.replyer2);
-		console.log("bno2:"+reply2.bno2);
+		console.log("reply:"+reply.reply);
+		console.log("replyer:"+reply.replyer);
+		console.log("bno:"+reply.bno);
 		
 		$.ajax({
 			type:'post',
 			url:'/replies/new2',
-			data:JSON.stringify(reply2),
+			data:JSON.stringify(reply),
 			contentType:"application/json;charset=utf-8",
 			success:function(result,status,xhr){
 				if(callback){
-					callback(result);					
+					callback(result);
 				}
 			},
 			error:function(xhr,status,er){
 				if(error){
-					error(er);					
+					error(er);
 				}
 			}
 		});
 	}
 	
-	//댓글 목록
-	function getList2(param, callback, error){
+	function getList(param,callback,error){
+		var bno=param.bno;
 		
-		var tradeBno2 = param.tradeBno2;
-		var page = param.page || 1;
+		console.log("bno:"+bno);
 		
-		$.getJSON("/replies/pages2/"+tradeBno2+"/"+page+".json",
+		var page=param.page || 1;
+		
+		$.getJSON("/replies/pages2/"+bno+"/"+page+".json",
 			function(data){
 				if(callback){
-					callback(data.replyCnt2, data.list2);
+					callback(data.replyCnt,data.list);
 				}
-			}).fail(function(xhr, status, err){
+			}).fail(function(xhr,status,err){
 				if(error){
 					error();
 				}
 			});
 	}
 	
-	//댓글 삭제
-	function remove2(rno2, callback, error){
-		$.ajax({
-			type : 'delete',
-			url : '/replies/delete/' + rno2,
-			success : function(deleteResult, status, xhr){
-				if(callback){
-					callback(deleteResult);
-				}
-			},
-			error : function(xhr, status, er){
-				if(error){
-					error(er);
-				}
-			}
-		});
-	}
 	
-	//댓글 수정
-	function update2(reply2, callback, error){
-		console.log("RNO2: " + reply2.rno2)
-		
+	function remove(rno,callback,error){
 		$.ajax({
-			type : 'put',
-			url : '/replies/update2/' + reply2.rno2,
-			data : JSON.stringify(reply2),
-			contentType : "application/json; charset=utf-8",
-			success : function(result, status, xhr){
+			type:'delete',
+			url:'/replies/remove/'+rno,			
+			success:function(result,status,xhr){
 				if(callback){
 					callback(result);
 				}
 			},
-			error : function(xhr, status, er){
+			error:function(xhr,status,er){
 				if(error){
 					error(er);
 				}
@@ -87,20 +65,42 @@ var replyService = (function(){
 		});
 	}
 	
-	//댓글 조회
-	function get2(rno2, callback, error){
-		$.get("/replies/pages2/"+rno2+".json",function(result){
-			if(callback){
-				callback(result);
-			}
-		}).fail(function(xhr, status, err){
-			if(error){
-				error();
+	function update(reply,callback,error){
+		console.log("update 댓글번호:"+reply.rno);
+				
+		$.ajax({
+			type:'put',
+			url:'/replies/modify/'+reply.rno,
+			data:JSON.stringify(reply),
+			contentType:"application/json;charset=utf-8",
+			success:function(result,status,xhr){
+				if(callback){
+					callback(result);
+				}
+			},
+			error:function(xhr,status,er){
+				if(error){
+					error(er);
+				}
 			}
 		});
 	}
 	
-	//시간 처리
+	function get(rno,callback,error){				
+		console.log("rno:"+rno);
+				
+		$.get("/replies/get/"+rno+".json",
+			function(result){
+				if(callback){
+					callback(result);
+				}
+			}).fail(function(xhr,status,err){
+				if(error){
+					error();
+				}
+			});
+	}
+	
 	function displayTime(timeValue){
 		
 		var today=new Date();
@@ -130,12 +130,12 @@ var replyService = (function(){
 		}
 	}
 	
-	return{
-		add2 : add2,
-		getList2 : getList2,
-		remove2 : remove2,
-		update2 : update2,
-		get2 : get2,
-		displayTime : displayTime
+	return {
+		add:add,
+		getList:getList,
+		remove:remove,
+		update:update,
+		get:get,
+		displayTime:displayTime
 	};
 })();

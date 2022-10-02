@@ -37,7 +37,7 @@
                         </button>
                       </div>
                 <h5 class="card-header">전체게시판&nbsp;&nbsp;&nbsp;&nbsp;
-                                <sec:authorize access="hasRole('ROLE_USER')">
+                <sec:authorize access="hasRole('ROLE_USER')">
                 <button id="regBtn" type="button" class="btn btn-sm btn-primary">글쓰기</button></h5>
                 </sec:authorize>
                 </h5>
